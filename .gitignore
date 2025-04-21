@@ -1,0 +1,8 @@
+# dev trash
+history.txt
+context.txt
+
+# data
+data/*
+work/*
+results/*
