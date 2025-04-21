@@ -1,0 +1,24 @@
+name: hifi_variants
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - pbmm2=1.17
+  - samtools=1.20
+  - mosdepth=0.3.5
+  - bioconda::seqkit
+  - fastqc
+  - sniffles=2.6
+  - cutesv=2.0
+  - jasmine
+  - bcftools=1.20
+  - snpeff=5.2
+  - hifiasm=0.19
+  - quast=5.2
+  - multiqc
+  - pigz
+  - openjdk=21
+  - longshot
+  - bioconda::nanoplot
+  - bioconda::nanopack
+prefix: /home/user920/miniconda3/envs/hifi_variants

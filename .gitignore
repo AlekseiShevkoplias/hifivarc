@@ -1,8 +1,15 @@
 # dev trash
 history.txt
 context.txt
+.vscode
+.nextflow
 
 # data
 data/*
 work/*
 results/*
+tests/results/
+tests/test_data
+
+# logs
+.nextflow.log*
