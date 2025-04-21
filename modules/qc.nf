@@ -1,75 +1,76 @@
 process seqkitStats {
-    tag "${fastq.simpleName}"
-    publishDir "${params.outdir}/qc/seqkit", mode: 'copy'
+    tag "${sample_id}"
+    publishDir "${params.outdir}/${sample_id}/qc", mode: 'copy'
 
     input:
-    path fastq
+    tuple val(sample_id), path(fastq)
 
     output:
-    path "seqkit_${fastq.simpleName}", emit: stats_dir
+    tuple val(sample_id), path("seqkit_${sample_id}"), emit: stats_dir
 
     script:
     """
-    mkdir seqkit_${fastq.simpleName}
-    seqkit stats -a ${fastq} > seqkit_${fastq.simpleName}/${fastq.simpleName}_stats.txt
+    mkdir seqkit_${sample_id}
+    seqkit stats -a ${fastq} > seqkit_${sample_id}/${sample_id}_stats.txt
     """
 }
 
 process nanoplot {
-    tag "${fastq.simpleName}"
-    publishDir "${params.outdir}/qc/nanoplot", mode: 'copy'
+    tag "${sample_id}"
+    publishDir "${params.outdir}/${sample_id}/qc", mode: 'copy'
 
     input:
-    path fastq
+    tuple val(sample_id), path(fastq)
 
     output:
-    path "nanoplot_${fastq.simpleName}", emit: nanoplot_dir
+    tuple val(sample_id), path("nanoplot_${sample_id}"), emit: nanoplot_dir
 
     script:
     """
     NanoPlot -t ${params.threads} --fastq ${fastq} \
-        --loglength -o nanoplot_${fastq.simpleName} \
-        --N50 --plots ${params.nanoplot_plots} --title "${fastq.simpleName}" \
+        --loglength -o nanoplot_${sample_id} \
+        --N50 --plots ${params.nanoplot_plots} --title "${sample_id}" \
         --format ${params.nanoplot_format}
     """
 }
 
+
 process fastqc {
-    tag "${fastq.simpleName}"
-    publishDir "${params.outdir}/qc/fastqc", mode: 'copy'
+    tag "${sample_id}"
+    publishDir "${params.outdir}/${sample_id}/qc", mode: 'copy'
 
     input:
-    path fastq
+    tuple val(sample_id), path(fastq)
 
     output:
-    path "fastqc_${fastq.simpleName}", emit: fastqc_dir
+    tuple val(sample_id), path("fastqc_${sample_id}"), emit: fastqc_dir
 
     when:
     params.fastqc_report
 
     script:
     """
-    mkdir fastqc_${fastq.simpleName}
-    fastqc -t ${params.threads} -o fastqc_${fastq.simpleName} ${fastq}
+    mkdir fastqc_${sample_id}
+    fastqc -t ${params.threads} -o fastqc_${sample_id} ${fastq}
     """
 }
 
 process multiqc {
-    tag "multiqc_report"
-    publishDir "${params.outdir}/qc/fastqc", mode: 'copy'
+
+    tag "${sample_id}"
+    publishDir "${params.outdir}/${sample_id}/qc", mode: 'copy'
 
     input:
-    path fastqc_dir
+    tuple val(sample_id), path(qc_dir)
 
     output:
     path "multiqc_report", emit: report_dir
 
     when:
-    params.fastqc_report && params.multiqc_report
+    params.multiqc_report
 
     script:
     """
-    mkdir multiqc_report
-    multiqc -o multiqc_report ${fastqc_dir}
+    multiqc -o multiqc_report ${qc_dir}
     """
 }

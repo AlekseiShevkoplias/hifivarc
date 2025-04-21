@@ -1,24 +1,27 @@
-#!/usr/bin/env nextflow
-
 nextflow.enable.dsl=2
 
-// Imports
 include { seqkitStats; nanoplot; fastqc; multiqc } from '../../../modules/qc'
 
-
 workflow {
-    fastq = Channel.fromPath(params.test_fastq, checkIfExists: true)
-    
-    stats_dir = seqkitStats(fastq).stats_dir
-    stats_dir.view { "SeqKit stats created: ${it.getName()}" }
-    
-    nanoplot_dir = nanoplot(fastq).nanoplot_dir
-    nanoplot_dir.view { "nanoplot figures created: ${it.getName()}" }
+    samples = Channel
+        .fromPath(params.test_fastq, checkIfExists: true)
+        .map { f -> tuple(f.simpleName, f) }          // (sample_id, fastq)
 
-    fastqc_dir = fastqc(fastq).fastqc_dir
-    fastqc_dir.view { "fastqc results created: ${it.getName()}" }
+    seqkit_out   = seqkitStats(samples).stats_dir      // (sample_id, path)
+    nanoplot_out = nanoplot(samples).nanoplot_dir
+    fastqc_out   = fastqc(samples).fastqc_dir
 
-    report_dir = multiqc(fastqc_dir).report_dir
-    report_dir.view { "multiqc report created: ${it.getName()}" }
+    // collect all QC‑channels in a list 
+    qc_channels = [ seqkit_out, nanoplot_out, fastqc_out ]
 
+    // fold the list with successive join() calls on sample_id (index 0)
+    qc_ready = qc_channels
+        .drop(1)                        // everything but the first channel
+        .inject(qc_channels.first()) { acc, ch -> acc.join(ch, by: 0) }
+        .map { t ->
+            def sid = t[0]              // sample_id
+            tuple( sid, file("${params.outdir}/${sid}/qc") )
+        }                               // -> (sample_id, qc_dir)
+
+    multiqc(qc_ready)
 }

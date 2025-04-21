@@ -1,43 +1,45 @@
+
 process bamToFastq {
-    tag "${bam.simpleName}"
-    publishDir "${params.outdir}/fastq", mode: 'copy', enabled: params.save_intermediates
+
+    tag "${sample_id}"
+    publishDir "${params.outdir}/${sample_id}/fastq",
+               mode: 'copy',
+               enabled: params.save_intermediates
 
     input:
-    path bam
-    
+        tuple val(sample_id), path(bam)
+
     output:
-    path "${bam.simpleName}.fastq.gz", emit: fastq
-    
+        tuple val(sample_id), path("${sample_id}.fastq.gz"), emit: fastq
+
     script:
     """
-    samtools fastq ${bam} | gzip > ${bam.simpleName}.fastq.gz
+    samtools fastq ${bam} | gzip > ${sample_id}.fastq.gz
     """
 }
 
 process filterReadQuality {
 
-    // Optional step to filter reads by quality
-    // Required params:
-    // save_intermediates (default true)
-    // min_read_length (default 1000)
-    // min_read_quality (default 7)
+    tag "${sample_id}"
+    publishDir "${params.outdir}/${sample_id}/fastq_filtered",
+               mode: 'copy',
+               enabled: params.save_intermediates
 
-    tag "${fastq.simpleName}"
-    publishDir "${params.outdir}/fastq_filtered", mode: 'copy', enabled: params.save_intermediates
-    
     input:
-    path fastq
-    
+        tuple val(sample_id), path(fastq)
+
     output:
-    path "${fastq.simpleName}_filtered.fastq.gz", emit: filtered_fastq
-    
+        tuple val(sample_id),
+              path("${sample_id}_filtered.fastq.gz"),
+              emit: filtered_fastq
+
     when:
-    params.filter_reads
-    
+        params.filter_reads
+
     script:
     """
-    seqkit seq -m ${params.min_read_length} ${fastq} | \
+    seqkit seq -m ${params.min_read_length}  ${fastq} | \
     seqkit seq -Q ${params.min_read_quality} | \
-    gzip > ${fastq.simpleName}_filtered.fastq.gz
+    gzip > ${sample_id}_filtered.fastq.gz
     """
 }
