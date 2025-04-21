@@ -14,5 +14,6 @@ workflow {
     fastq = bamToFastq.out.fastq
     fastq.view { "FASTQ created from BAM: ${it.getName()}" }
 
-    filterReadQuality(fastq)
+    fastq_filtered = filterReadQuality(fastq)
+    fastq_filtered.view { "FASTQ filtered: ${it.getName()}" }
 }
