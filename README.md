@@ -8,4 +8,4 @@ Repository of the original project: [CobaltSeq](https://github.com/catalin-rusna
 This workflow supports the growing [replifactory](https://new.replifactory.com/) codebase.  
 Replifactory provides cutting-edge automated solutions for experimental evolution. It is a 3D-printed morbidostat/turbidostat lab device with fully open-source software.  
 
-Replifactory is built on collaboration, and we are deeply grateful for the invaluable support from our partners.
+Replifactory is built on collaboration, and we are deeply grateful for the invaluable support from our contributors.

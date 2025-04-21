@@ -1,7 +1,7 @@
 process sniffles {
 
     tag "${sample_id}"
-    publishDir "${params.outdir}/${sample_id}/sv_calling/sniffles", mode: 'copy'
+    publishDir "${params.outdir}/${sample_id}/variants/long/sniffles", mode: 'copy'
 
     input:
         tuple val(sample_id), path(bam), path(bai)
@@ -33,7 +33,7 @@ process sniffles {
 process cutesv {
 
     tag "${sample_id}"
-    publishDir "${params.outdir}/${sample_id}/sv_calling/cutesv", mode: 'copy'
+    publishDir "${params.outdir}/${sample_id}/variants/long/cutesv", mode: 'copy'
 
     input:
         tuple val(sample_id), path(bam), path(bai)
@@ -62,7 +62,7 @@ process cutesv {
 process sv_consensus {
 
     tag "${sample_id}"
-    publishDir "${params.outdir}/${sample_id}/sv_calling/consensus", mode: 'copy'
+    publishDir "${params.outdir}/${sample_id}/variants/long/consensus", mode: 'copy'
 
     input:
         tuple val(sample_id), path(sniffles_vcf), path(cutesv_vcf)
